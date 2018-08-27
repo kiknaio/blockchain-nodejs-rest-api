@@ -142,8 +142,6 @@ class Blockchain {
   }
 }
 
-const blockchain = new Blockchain();
-
 // TODO: fix bug. New block creates before Genesis block
 // === Create new block ===
 // blockchain.addBlock('test');
@@ -164,3 +162,5 @@ const blockchain = new Blockchain();
 // === GET Blockchain length ===
 // (async () =>
 //   console.log(await blockchain.getBlockHeight()))();
+
+module.exports = Blockchain;
