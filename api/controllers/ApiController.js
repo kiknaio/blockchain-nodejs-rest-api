@@ -10,11 +10,28 @@ const blockchain = new Blockchain();
 
 module.exports = {
   list: (req, res) => {
-    return res.json({ status: 'Hello World' });
+    return res.json({ 
+    	status: 'ok' ,
+    	message: 'Welcome to private blockchain API'
+    });
   },
+
+  genesisBlock: async (req, res) => {
+  	const genesisBlock = await blockchain.getBlock(0);
+  	return res.json(genesisBlock);
+  },
+
   getBlock: async (req, res) => {
-    const genesisBlock = await blockchain.getBlock(0);
-    return res.json({ blockNumber: req.params.blockNumber });
+  	try {
+	    const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
+	    return res.json(block);
+  	} catch(error) {
+  		return res.json({
+  			status: 'failed',
+  			message: error
+  		})
+  	}
+    
   }
 };
 
