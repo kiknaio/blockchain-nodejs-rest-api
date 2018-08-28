@@ -14,7 +14,7 @@ module.exports = {
   },
   getBlock: async (req, res) => {
     const genesisBlock = await blockchain.getBlock(0);
-    return res.json({ genesisBlock });
+    return res.json({ blockNumber: req.params.blockNumber });
   }
 };
 
