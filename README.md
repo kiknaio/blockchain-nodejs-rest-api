@@ -13,7 +13,7 @@ a [Sails v1](https://sailsjs.com) application
 ### Test commands
 * Add new block
 ```
-curl -X "POST" "http://localhost:1337/block" \
+curl -X "POST" "http://localhost:8000/block" \
      -H 'Content-Type: application/json' \
      -d $'{
   "body": "Testing block with test string data"
@@ -21,9 +21,9 @@ curl -X "POST" "http://localhost:1337/block" \
 ```
 * Get block by numer
 ```
-curl "http://localhost:1337/block/1"
+curl "http://localhost:8000/block/1"
 or
-curl "http://localhost:1337/block/" // to get genesis block
+curl "http://localhost:8000/block/" // to get genesis block
 ```
 
 
