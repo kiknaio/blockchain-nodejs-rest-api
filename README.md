@@ -5,6 +5,10 @@ a [Sails v1](https://sailsjs.com) application
 **Requirements**
 - Node version > 10
 
+**How to start project**
+
+`npm start`
+
 
 ### Test commands
 * Add new block
