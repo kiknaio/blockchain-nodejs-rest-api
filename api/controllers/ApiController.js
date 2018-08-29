@@ -24,6 +24,13 @@ module.exports = {
 	// Get block by block number(height)
   getBlock: async (req, res) => {
   	try {
+			const height = await blockchain.getBlockHeight();
+			if (req.params.blockNumber > height) {
+				return res.json({
+					status: 'failed',
+					message: `block with blockNumber #${req.params.blockNumber} doesn't exist`
+				})
+			}
 	    const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
 	    return res.json(block);
   	} catch(error) {
@@ -35,9 +42,15 @@ module.exports = {
 	},
 	// Add new block
 	addBlock: async (req, res) => {
-		console.log(req.body.data);
+		console.log(req.body.body);
 		try {
-			const test = await blockchain.addBlock(req.body.data);
+			if(!req.body.body) {
+				return res.json({
+					status: 'failed',
+					message: 'please provide data'
+				})
+			}
+			await blockchain.addBlock(req.body.body);
 			const height = await blockchain.getBlockHeight();
 			const response = await blockchain.getBlock(height);
 			return res.json(response);
