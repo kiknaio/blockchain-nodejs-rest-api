@@ -2,6 +2,10 @@
 
 a [Sails v1](https://sailsjs.com) application
 
+**Requirements**
+- Node version > 10
+
+
 ### Test commands
 * Add new block
 ```
