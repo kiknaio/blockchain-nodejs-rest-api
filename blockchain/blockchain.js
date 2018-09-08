@@ -11,20 +11,17 @@ const logGet = (thing, cb) => new Promise(resolve =>
 
 class Blockchain {
   constructor() {
-    let height = 0;
-    log.createReadStream()
-      .on('data', () => height++)
-      .on('close', () => {
-        if (height === 0) {
-          console.log(boxen('Genesis block created', { padding: 1}));
-          this.addBlock("Genesis block");
-        }
-      })
+		(async() => {
+      let height = await this.getBlockHeight();
+    	if (height === 0) {
+    		await this.addBlock({ content: 'Genesis block' });
+        console.log(boxen('Generated Genesis Block', { padding: 1 }));
+    	}
+		})()		
   }
 
   async addBlock(data) {
-    const newBlock = new Block(data);
-    let height = 0;
+    const newBlock = await new Block(data);
 
     newBlock.time = new Date().getTime().toString().slice(0, -3);
     newBlock.body = data;
@@ -142,7 +139,11 @@ class Blockchain {
   }
 }
 
-// TODO: fix bug. New block creates before Genesis block
+module.exports = Blockchain;
+
+const blockchain = new Blockchain();
+// // TODO: fix bug. New block creates before Genesis block
+// TODO: Still bug: double log during initialization
 // === Create new block ===
 // blockchain.addBlock('test');
 
@@ -153,14 +154,14 @@ class Blockchain {
 // blockchain.validateChain();
 
 // === List blocks ===
-// blockchain.list();
+blockchain.list();
 
 // === GET Block ===
 // (async () =>
-//   console.log(await blockchain.getBlock(0)))()
+//   console.log(await blockchain.getBlock(5)))()
 
 // === GET Blockchain length ===
 // (async () =>
 //   console.log(await blockchain.getBlockHeight()))();
 
-module.exports = Blockchain;
+
