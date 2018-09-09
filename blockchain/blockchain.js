@@ -140,28 +140,3 @@ class Blockchain {
 }
 
 module.exports = Blockchain;
-
-const blockchain = new Blockchain();
-// // TODO: fix bug. New block creates before Genesis block
-// TODO: Still bug: double log during initialization
-// === Create new block ===
-// blockchain.addBlock('test');
-
-// === Validate block ===
-// blockchain.validateBlock(2);
-
-// === Validate chainz of blockz 🥕 ===
-// blockchain.validateChain();
-
-// === List blocks ===
-// blockchain.list();
-
-// === GET Block ===
-// (async () =>
-//   console.log(await blockchain.getBlock(5)))()
-
-// === GET Blockchain length ===
-// (async () =>
-//   console.log(await blockchain.getBlockHeight()))();
-
-
