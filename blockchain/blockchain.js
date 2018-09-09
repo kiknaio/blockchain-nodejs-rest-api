@@ -154,7 +154,7 @@ const blockchain = new Blockchain();
 // blockchain.validateChain();
 
 // === List blocks ===
-blockchain.list();
+// blockchain.list();
 
 // === GET Block ===
 // (async () =>
