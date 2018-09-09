@@ -43,9 +43,10 @@ module.exports.routes = {
   //  ╔═╗╔═╗╦  ╔═╗╔╗╔╔╦╗╔═╗╔═╗╦╔╗╔╔╦╗╔═╗
   //  ╠═╣╠═╝║  ║╣ ║║║ ║║╠═╝║ ║║║║║ ║ ╚═╗
   //  ╩ ╩╩  ╩  ╚═╝╝╚╝═╩╝╩  ╚═╝╩╝╚╝ ╩ ╚═╝
-  'GET /api': 'ApiController.list',
-  'GET /api/block/:blockNumber': 'ApiController.getBlock',
-  'GET /api/block': 'ApiController.genesisBlock',
+  'GET /api': 'ApiController.home',
+  'GET /block/:blockNumber': 'ApiController.getBlock',
+  'GET /block': 'ApiController.genesisBlock',
+  'POST /block': 'ApiController.addBlock',
 
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
