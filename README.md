@@ -26,6 +26,10 @@ or
 curl "http://localhost:8000/block/" // to get genesis block
 ```
 
+Data format
+```
+RA 13h 03m 33.35sec, Dec -49° 31’ 38.1” Mag 4.83 Cen
+```
 
 ### Version info
 

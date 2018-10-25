@@ -48,8 +48,11 @@ module.exports.routes = {
   'GET /block': 'ApiController.genesisBlock',
   'POST /block': 'ApiController.addBlock',
 
-  // Validation
-  'GET /requestValidation': 'ApiController.requestValidation',
+  // Notary service
+  // ? GET or POST ?
+  'POST /requestValidation': 'ApiController.requestValidation',
+  '? /message-signature/validate': 'ApiController.messageSignatureValidation',
+
 
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
