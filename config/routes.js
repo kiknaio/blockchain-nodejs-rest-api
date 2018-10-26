@@ -44,14 +44,19 @@ module.exports.routes = {
   //  ╠═╣╠═╝║  ║╣ ║║║ ║║╠═╝║ ║║║║║ ║ ╚═╗
   //  ╩ ╩╩  ╩  ╚═╝╝╚╝═╩╝╩  ╚═╝╩╝╚╝ ╩ ╚═╝
   'GET /api': 'ApiController.home',
-  'GET /block/:blockNumber': 'ApiController.getBlock',
   'GET /block': 'ApiController.genesisBlock',
-  'POST /block': 'ApiController.registerStar',
 
   // Notary service
   // ? GET or POST ?
   'POST /requestValidation': 'ApiController.requestValidation',
   'POST /message-signature/validate': 'ApiController.messageSignatureValidation',
+
+  'POST /block': 'ApiController.registerStar',
+
+  'GET /stars/address/:address': 'ApiController.searchByAddress',
+  'GET /stars/hash/:hash': 'ApiController.searchByHash',
+  'GET /block/:blockNumber': 'ApiController.getBlock',
+
 
 
 

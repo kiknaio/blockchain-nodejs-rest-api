@@ -147,4 +147,27 @@ exports.registerStar = async (req, res) => {
   // Get last block and send it as a response;
   const height = await blockchain.getBlockHeight();
   return res.json(await blockchain.getBlock(height));
+};
+
+exports.searchByAddress = async (req, res) => {
+  const { address } = req.params;
+
+  const height = await blockchain.getBlockHeight();
+  let blocks = [];
+
+  for (let i=0; i < height; i++) {
+    let block = await blockchain.getBlock(i);
+    blocks.push(block);
+  }
+
+  blocks = blocks.filter(item => item.body.address === address);
+
+  if (blocks.length <= 0) {
+    return res.json({
+      status: 'error',
+      message: 'There are no entries on this address',
+    })
+  }
+
+  return res.json({ blocks });
 }
