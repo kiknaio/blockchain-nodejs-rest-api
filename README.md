@@ -7,7 +7,9 @@ a [Sails v1](https://sailsjs.com) application
 
 **How to start project**
 
-`npm start`
+- `npm start` - Start service (only production version)
+- `npm run dev` - Run development version
+- `npm test` - Test application (generates address, signs the message and saved the data on blockchain).
 
 ### Validate Address
 **All variables provided with the endpoints are `req.body` variables**
@@ -123,3 +125,5 @@ Service provides multiple ways to find the entry.
 ### Version info
 
 This app was originally generated on Mon Aug 27 2018 22:21:48 GMT+0200 (Central European Summer Time) using Sails v1.0.2.
+
+- Updated Friday October 26, 2018 
