@@ -1,5 +1,6 @@
 const moment = require('moment');
 const Blockchain = require('../../blockchain/blockchain');
+const bitcoinMessage = require('bitcoinjs-message');
 const blockchain = new Blockchain();
 const list = {};
 
@@ -93,3 +94,57 @@ exports.requestValidation = (req, res) => {
 	return res.json(response);
 }
 
+exports.messageSignatureValidation = (req, res) => {
+  const { address, signature } = req.body;
+  const currentTime = moment().unix();
+  console.log(list[address].requestTimeStamp + 300, currentTime);
+
+  // Check if address has been already validated and validation is not expired
+  if(!list.hasOwnProperty(address) || (list[address].requestTimeStamp + 300) < currentTime) {
+    return res.json({
+      status: 'error',
+      message: 'Address has no validation or validation time has already been expired.'
+    });
+  }
+
+  const isSignatureValid = bitcoinMessage.verify(list[address].message, address, signature);
+  console.log(isSignatureValid)
+
+  list[address].validationWindow = (list[address].validationWindow + 300) - currentTime;
+  list[address].messageSignature = isSignatureValid ? "valid" : "invalid";
+
+  // If signature is right
+  if(isSignatureValid) {
+    return res.json({
+      registerStar: true,
+      status: list[address],
+    });
+  } else {
+    list[address].valid = true;
+    return res.json({
+      registerStar: false,
+      status: "error",
+      message: "Signature is invalid"
+    })
+  }
+};
+
+exports.registerStar = async (req, res) => {
+  const { address, star } = req.body;
+
+  if(!list.hasOwnProperty(address) || !list[address].messageSignature) {
+    return res.json({
+      status: "error",
+      message: "Address is not registered or validated. Please check",
+    });
+  }
+
+  await blockchain.addBlock({
+    address,
+    star
+  });
+
+  // Get last block and send it as a response;
+  const height = await blockchain.getBlockHeight();
+  return res.json(await blockchain.getBlock(height));
+}
