@@ -169,5 +169,28 @@ exports.searchByAddress = async (req, res) => {
     })
   }
 
-  return res.json({ blocks });
+  return res.json(blocks);
+}
+
+exports.searchByHash = async (req, res) => {
+  const { hash} = req.params;
+
+  const height = await blockchain.getBlockHeight();
+  let blocks = [];
+
+  for (let i=0; i < height; i++) {
+    let block = await blockchain.getBlock(i);
+    blocks.push(block);
+  }
+
+  blocks = blocks.filter(item => item.hash === hash);
+
+  if (blocks.length <= 0) {
+    return res.json({
+      status: 'error',
+      message: 'There are no entries with this hash',
+    })
+  }
+
+  return res.json(blocks);
 }
