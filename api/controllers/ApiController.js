@@ -201,7 +201,10 @@ exports.searchByAddress = async (req, res) => {
 }
 
 exports.searchByHash = async (req, res) => {
-  const { hash} = req.params;
+  let { hash} = req.params;
+  
+  // Remove special characters from hash
+  hash = hash.replace(/[^\w\s]/gi, '');
 
   const height = await blockchain.getBlockHeight();
   let blocks = [];
