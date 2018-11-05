@@ -73,19 +73,21 @@ exports.requestValidation = (req, res) => {
 			address,
 			requestTimeStamp: currentTime,
 			message: `${address}:${currentTime}:starRegistry`,
-			validationWindow: 300,
+      validationWindow: 300,
+      expiresAt: moment().unix(),
 		};
 		// Save response to response variable
 		response = list[address];
 	} else { // Else - the address is saved already
-		// If - it is expired
+    // If - it is expired
+
 		if((list[address].requestTimeStamp + 300) < currentTime) {
 			delete list[address];
 			// Save expires into response variable 
 			response = { message: "Request time has expired" };
 		} else { // Else - it is not expired
 			// Save json response to response variable
-			list[address].validationWindow = (list[address].requestTimeStamp + list[address].validationWindow) - currentTime;
+			list[address].validationWindow = (list[address].requestTimeStamp + 300) - currentTime;
 			response = list[address];
 		}
 	}
@@ -97,7 +99,13 @@ exports.requestValidation = (req, res) => {
 exports.messageSignatureValidation = (req, res) => {
   const { address, signature } = req.body;
   const currentTime = moment().unix();
-  console.log(list[address].requestTimeStamp + 300, currentTime);
+
+  if (!address || !signature) {
+    return res.json({
+      status: 'error',
+      message: 'Address or signature is missing'
+    })
+  }
 
   // Check if address has been already validated and validation is not expired
   if(!list.hasOwnProperty(address) || (list[address].requestTimeStamp + 300) < currentTime) {
@@ -108,10 +116,9 @@ exports.messageSignatureValidation = (req, res) => {
   }
 
   const isSignatureValid = bitcoinMessage.verify(list[address].message, address, signature);
-  console.log(isSignatureValid)
 
   list[address].validationWindow = (list[address].validationWindow + 300) - currentTime;
-  list[address].messageSignature = isSignatureValid ? "valid" : "invalid";
+  list[address].messageSignature = isSignatureValid
 
   // If signature is right
   if(isSignatureValid) {
@@ -132,12 +139,32 @@ exports.messageSignatureValidation = (req, res) => {
 exports.registerStar = async (req, res) => {
   const { address, star } = req.body;
 
+  if (!address || !star) {
+    return res.json({
+      status: 'error',
+      message: 'Address or start detailes are not provided',
+    })
+  }
+
+  const isASCII = str => /^[\x00-\x7F]*$/.test(str);
+
+  if (star.story.split(' ').length > 250 && !isASCII(star.story)) {
+    return res.json({
+      status: 'error',
+      message: 'Start story is more than 250 words or they use some special symbols (Please only use ASCII symbols)',
+    })
+  }
+
   if(!list.hasOwnProperty(address) || !list[address].messageSignature) {
     return res.json({
       status: "error",
       message: "Address is not registered or validated. Please check",
     });
   }
+
+  // Reset the state. Do not allow users to register more than one start
+  // per validation.
+  list[address].messageSignature = false;
 
   await blockchain.addBlock({
     address,
@@ -146,7 +173,8 @@ exports.registerStar = async (req, res) => {
 
   // Get last block and send it as a response;
   const height = await blockchain.getBlockHeight();
-  return res.json(await blockchain.getBlock(height));
+  const block = await blockchain.getBlock(height);
+  return res.json(block);
 };
 
 exports.searchByAddress = async (req, res) => {
