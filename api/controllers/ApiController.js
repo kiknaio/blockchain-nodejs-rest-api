@@ -178,7 +178,11 @@ exports.registerStar = async (req, res) => {
 };
 
 exports.searchByAddress = async (req, res) => {
-  const { address } = req.params;
+  let { address} = req.params;
+  
+  // Remove special characters from hash
+  address = address.replace(/[^\w\s]/gi, '');
+  console.log(address);
 
   const height = await blockchain.getBlockHeight();
   let blocks = [];
@@ -187,8 +191,14 @@ exports.searchByAddress = async (req, res) => {
     let block = await blockchain.getBlock(i);
     blocks.push(block);
   }
+  
+  blocks = await blocks.filter(item => {
+    if (item.body.address && item.body.address === address) {
+      return item;
+    }
+  });
 
-  blocks = blocks.filter(item => item.body.address === address);
+  console.log(blocks);
 
   if (blocks.length <= 0) {
     return res.json({
@@ -202,7 +212,7 @@ exports.searchByAddress = async (req, res) => {
 
 exports.searchByHash = async (req, res) => {
   let { hash} = req.params;
-  
+
   // Remove special characters from hash
   hash = hash.replace(/[^\w\s]/gi, '');
 

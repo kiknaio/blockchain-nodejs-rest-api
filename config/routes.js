@@ -53,7 +53,7 @@ module.exports.routes = {
 
   'POST /block': 'ApiController.registerStar',
 
-  'GET /stars/address/:address': 'ApiController.searchByAddress',
+  'GET /stars/address:address': 'ApiController.searchByAddress',
   'GET /stars/hash:hash': 'ApiController.searchByHash',
   'GET /block/:blockNumber': 'ApiController.getBlock',
 
