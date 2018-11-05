@@ -162,6 +162,10 @@ exports.registerStar = async (req, res) => {
     });
   }
 
+  // Convert to ASCII
+  star.story = star.story.split('').map(el => el.charCodeAt(0)).join('');
+  console.log(star);
+
   // Reset the state. Do not allow users to register more than one start
   // per validation.
   list[address].messageSignature = false;
