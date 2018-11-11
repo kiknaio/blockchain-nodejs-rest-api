@@ -64,7 +64,14 @@ exports.addBlock = async (req, res) => {
 exports.requestValidation = (req, res) => {
 	const { address } = req.body;
 	const currentTime = moment().unix();
-	let response;
+  let response;
+  
+  if(!address) {
+    return res.json({
+      status: 'error',
+      message: 'Please provide address',
+    })
+  }
 	
 	// If - the address is not saved yet
 	if(!list.hasOwnProperty(address)) {
@@ -117,23 +124,29 @@ exports.messageSignatureValidation = (req, res) => {
 
   const isSignatureValid = bitcoinMessage.verify(list[address].message, address, signature);
 
-  list[address].validationWindow = (list[address].validationWindow + 300) - currentTime;
+  if(!isSignatureValid) {
+    return res.json({
+      status: 'error',
+      message: 'Signature is not valid. Please provide a valid signature',
+    })
+  }
+
+  if((list[address].requestTimeStamp + 300 - currentTime) <= 0 ) {
+    delete list[address];
+    return res.json({
+      status: 'error',
+      message: 'Validation period has expired. Please validate your address again',
+    });
+  }
+
+  list[address].validationWindow = (list[address].requestTimeStamp + 300) - currentTime;
   list[address].messageSignature = isSignatureValid
 
   // If signature is right
-  if(isSignatureValid) {
-    return res.json({
-      registerStar: true,
-      status: list[address],
-    });
-  } else {
-    list[address].valid = true;
-    return res.json({
-      registerStar: false,
-      status: "error",
-      message: "Signature is invalid"
-    })
-  }
+  return res.json({
+    registerStar: true,
+    status: list[address],
+  });
 };
 
 exports.registerStar = async (req, res) => {
@@ -162,13 +175,13 @@ exports.registerStar = async (req, res) => {
     });
   }
 
-  // Convert to ASCII
-  star.story = star.story.split('').map(el => el.charCodeAt(0)).join('');
-  console.log(star);
-
   // Reset the state. Do not allow users to register more than one start
   // per validation.
   list[address].messageSignature = false;
+
+  star.storyDecoded = star.story;
+  // Convert to ASCII
+  star.story = star.story.split('').map(el => el.charCodeAt(0)).join('');
 
   await blockchain.addBlock({
     address,
@@ -177,7 +190,7 @@ exports.registerStar = async (req, res) => {
 
   // Get last block and send it as a response;
   const height = await blockchain.getBlockHeight();
-  const block = await blockchain.getBlock(height);
+  const block = await blockchain.getBlock(height-1);
   return res.json(block);
 };
 
@@ -186,7 +199,6 @@ exports.searchByAddress = async (req, res) => {
   
   // Remove special characters from hash
   address = address.replace(/[^\w\s]/gi, '');
-  console.log(address);
 
   const height = await blockchain.getBlockHeight();
   let blocks = [];

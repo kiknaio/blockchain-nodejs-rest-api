@@ -3,7 +3,7 @@ const SHA256 = require('crypto-js/sha256');
 const to = require('to2');
 const boxen = require('boxen');
 const Block = require('./block');
-const log = level('log.db', { valueEncoding: 'json' });
+const log = level('../../log.db', { valueEncoding: 'json' });
 
 const logGet = (thing, cb) => new Promise(resolve =>
   log.get(thing, (...args) => cb(...args, resolve))
