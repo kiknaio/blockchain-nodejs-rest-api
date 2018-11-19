@@ -31,7 +31,7 @@ axios.post('http://localhost:8000/requestValidation', { address })
             star: {
               dec: "-26° 29'\'' 24.9",
               ra: "16h 29m 1.0s",
-              story: "47656f726765"
+              story: "William The Royal Dog"
             }
           }).then(r => console.log(r.data)).catch(e => console.log(e));
         } else {

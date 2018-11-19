@@ -19,29 +19,6 @@ exports.genesisBlock = async (req, res) => {
 	return res.json(genesisBlock);
 };
 
-// Get block by block number(height)
-exports.getBlock = async (req, res) => {
-	try {
-		const height = await blockchain.getBlockHeight();
-		if (req.params.blockNumber > height) {
-			return res.json({
-				status: 'failed',
-				message: `block with blockNumber #${req.params.blockNumber} doesn't exist`
-			})
-    }
-    
-    const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
-    block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
-    
-		return res.json(block);
-	} catch(error) {
-		return res.json({
-			status: 'failed',
-			message: error
-		})
-	}
-};
-
 // Add new block
 exports.addBlock = async (req, res) => {
 	console.log(req.body.body);
@@ -198,6 +175,8 @@ exports.registerStar = async (req, res) => {
   // per validation.
   delete list[address];
 
+  star.story = Buffer(star.story, 'ascii').toString('hex');
+
   await blockchain.addBlock({
     address,
     star
@@ -208,9 +187,32 @@ exports.registerStar = async (req, res) => {
   blockchain
     .getBlockHeight()
     .then(height => {
-      blockchain.getBlock(height-1)
+      blockchain.getBlock(height)
         .then(block => res.json(block));
   });
+};
+
+// Get block by block number(height)
+exports.getBlock = async (req, res) => {
+	try {
+		const height = await blockchain.getBlockHeight();
+		if (req.params.blockNumber > height) {
+			return res.json({
+				status: 'failed',
+				message: `block with blockNumber #${req.params.blockNumber} doesn't exist`
+			})
+    }
+    
+    const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
+    block.body.star.storyDecoded = Buffer(block.body.star.story, 'hex').toString();
+    
+		return res.json(block);
+	} catch(error) {
+		return res.json({
+			status: 'failed',
+			message: error
+		})
+	}
 };
 
 exports.searchByAddress = async (req, res) => {
@@ -241,7 +243,7 @@ exports.searchByAddress = async (req, res) => {
   }
 
   blocks.map(block => {
-    block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+    block.body.star.storyDecoded = Buffer(block.body.star.story, 'hex').toString();
     return block;
   })
   
@@ -273,7 +275,8 @@ exports.searchByHash = async (req, res) => {
   }
 
   // Encode to ASCII
-  block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+  // block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+  block.body.star.storyDecoded = Buffer(block.body.star.story, 'hex').toString();
 
   return res.json(block);
 }
