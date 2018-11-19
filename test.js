@@ -13,8 +13,10 @@ const privateKey = keyPair.privateKey;
 const message = "1F5VhMHukdnUES9kfXqzPzMeF1GPHKiF64:1540550052:starRegistry";
 const signature = bitcoinMessage.sign(message, privateKey, keyPair.compressed);
 
+console.log('=======================================')
 console.log("Address:", address);
 console.log("Signature:", signature.toString('base64'));
+console.log('=======================================')
 
 axios.post('http://localhost:8000/requestValidation', { address })
   .then(response => {
@@ -29,7 +31,7 @@ axios.post('http://localhost:8000/requestValidation', { address })
             star: {
               dec: "-26° 29'\'' 24.9",
               ra: "16h 29m 1.0s",
-              story: "Found star using https://www.google.com/sky/"
+              story: "47656f726765"
             }
           }).then(r => console.log(r.data)).catch(e => console.log(e));
         } else {

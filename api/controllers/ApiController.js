@@ -1,4 +1,5 @@
 const moment = require('moment');
+const hex = require('lagden-hex');
 const Blockchain = require('../../blockchain/blockchain');
 const bitcoinMessage = require('bitcoinjs-message');
 const blockchain = new Blockchain();
@@ -27,8 +28,11 @@ exports.getBlock = async (req, res) => {
 				status: 'failed',
 				message: `block with blockNumber #${req.params.blockNumber} doesn't exist`
 			})
-		}
-		const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
+    }
+    
+    const block = await blockchain.getBlock(parseInt(req.params.blockNumber));
+    block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+    
 		return res.json(block);
 	} catch(error) {
 		return res.json({
@@ -156,12 +160,27 @@ exports.registerStar = async (req, res) => {
     return res.json({
       status: 'error',
       message: 'Address or start detailes are not provided',
-    })
+    });
+  } else if (!star.hasOwnProperty('dec') || !star.hasOwnProperty('ra') || !star.hasOwnProperty('story')) {
+    return res.json({
+      status: 'error',
+      message: 'Please provide start with the next properties: dec, ra and story.',
+    });
   }
 
-  const isASCII = str => /^[\x00-\x7F]*$/.test(str);
+  const isASCII = str => {
+    let ascii = true;
+    str.split('').forEach(letter => {
 
-  if (star.story.split(' ').length > 250 && !isASCII(star.story)) {
+      if(letter.charCodeAt(0) > 127) {
+        console.log(letter.charCodeAt(0))
+        ascii = false;
+      }
+    })
+    return ascii;
+  }
+
+  if (star.story.split('').length > 500 || !isASCII(star.story)) {
     return res.json({
       status: 'error',
       message: 'Start story is more than 250 words or they use some special symbols (Please only use ASCII symbols)',
@@ -177,11 +196,7 @@ exports.registerStar = async (req, res) => {
 
   // Reset the state. Do not allow users to register more than one start
   // per validation.
-  list[address].messageSignature = false;
-
-  star.storyDecoded = star.story;
-  // Convert to ASCII
-  star.story = star.story.split('').map(el => el.charCodeAt(0)).join('');
+  delete list[address];
 
   await blockchain.addBlock({
     address,
@@ -189,9 +204,13 @@ exports.registerStar = async (req, res) => {
   });
 
   // Get last block and send it as a response;
-  const height = await blockchain.getBlockHeight();
-  const block = await blockchain.getBlock(height-1);
-  return res.json(block);
+
+  blockchain
+    .getBlockHeight()
+    .then(height => {
+      blockchain.getBlock(height-1)
+        .then(block => res.json(block));
+  });
 };
 
 exports.searchByAddress = async (req, res) => {
@@ -213,15 +232,19 @@ exports.searchByAddress = async (req, res) => {
       return item;
     }
   });
-
-  console.log(blocks);
-
+  
   if (blocks.length <= 0) {
     return res.json({
       status: 'error',
       message: 'There are no entries on this address',
     })
   }
+
+  blocks.map(block => {
+    block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+    return block;
+  })
+  
 
   return res.json(blocks);
 }
@@ -240,14 +263,17 @@ exports.searchByHash = async (req, res) => {
     blocks.push(block);
   }
 
-  blocks = blocks.filter(item => item.hash === hash);
+  let [ block ] = blocks.filter(item => item.hash === hash);
 
-  if (blocks.length <= 0) {
+  if (block.length <= 0) {
     return res.json({
       status: 'error',
       message: 'There are no entries with this hash',
     })
   }
 
-  return res.json(blocks);
+  // Encode to ASCII
+  block.body.star.storyDecoded = hex.decode(block.body.star.story, false);
+
+  return res.json(block);
 }
