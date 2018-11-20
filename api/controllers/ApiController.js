@@ -183,13 +183,9 @@ exports.registerStar = async (req, res) => {
   });
 
   // Get last block and send it as a response;
-
-  blockchain
-    .getBlockHeight()
-    .then(height => {
-      blockchain.getBlock(height)
-        .then(block => res.json(block));
-  });
+  const height = await blockchain.getBlockHeight();
+  const response = await blockchain.getBlock(height);
+  return res.json(response);
 };
 
 // Get block by block number(height)
