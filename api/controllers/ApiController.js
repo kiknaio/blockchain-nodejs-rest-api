@@ -194,6 +194,13 @@ exports.registerStar = async (req, res) => {
 
 // Get block by block number(height)
 exports.getBlock = async (req, res) => {
+  const blockNumber = parseInt(req.params.blockNumber);
+
+  if(blockNumber === 0) {
+    return res.json(await blockchain.getBlock(0));
+  }
+
+
 	try {
 		const height = await blockchain.getBlockHeight();
 		if (req.params.blockNumber > height) {
